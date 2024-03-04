@@ -1,7 +1,7 @@
 class Node:
     def __init__(self, name, neighbors=None):
         self.name = name
-        self.neighbors = neighbors if neighbors else []
+        self.neighbors = neighbors
         self.visited = False
        
 
@@ -36,7 +36,7 @@ def DLS(graph, initialstate, goalstate, limit):
     while frontier:
         currentNode, depth = frontier.pop()
         explored.append(currentNode)
-
+            
         if currentNode == goalstate:
             return actionSequence(graph, initialstate, goalstate)
 

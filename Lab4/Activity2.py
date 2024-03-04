@@ -15,14 +15,14 @@ graph = {
     'G': Node('G', None, ['C'],None)
 }
 def DFS():
-    frontier = ['A']
+    frontier = ['D']
     explored = []
-    goalstate = 'D'
+    goalstate = 'C'
     while frontier:
         currentNode = frontier.pop()
         explored.append(currentNode)
         if currentNode == goalstate:
-            return actionSequence(graph, 'A', 'D')
+            return actionSequence(graph, 'D', 'C')
         for child in graph[currentNode].actions:
             if child not in frontier and child not in explored:
                 graph[child].parent = currentNode
