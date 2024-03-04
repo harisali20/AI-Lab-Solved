@@ -1,7 +1,7 @@
 class Node:
     def __init__(self, name, neighbors=None):
         self.name = name
-        self.neighbors = neighbors
+        self.neighbors = neighbors if neighbors else []
         self.visited = False
        
 
@@ -38,7 +38,7 @@ def DLS(graph, initialstate, goalstate, limit):
         explored.append(currentNode)
             
         if currentNode == goalstate:
-            return actionSequence(graph, initialstate, goalstate)
+            return path(graph, initialstate, goalstate)
 
         if depth < limit:
             for child in graph[currentNode].neighbors:
@@ -46,7 +46,7 @@ def DLS(graph, initialstate, goalstate, limit):
                     graph[child[0]].parent = currentNode
                     frontier.append((child[0], depth + 1))
 
-def actionSequence(graph, initialstate, goalstate):
+def path(graph, initialstate, goalstate):
     solution = [goalstate]
     currentParent = graph[goalstate].parent
 
