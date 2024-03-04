@@ -1,70 +1,69 @@
 class Node:
-    def __init__(self, name, neighbors=None):
-        self.name = name
-        self.neighbors = neighbors if neighbors else []
-        self.visited = False
-       
+    def __init__(self, state, cost=0):
+        self.state = state
+        self.parent = None
+        self.cost = cost
 
-
-graph = {
-    'Arad': Node('Arad', [('Zerind', 75), ('Sibiu', 140), ('Timisoara', 118)]),
-    'Bucharest': Node('Bucharest', [('Giurgiu', 85), ('Pitesti', 211), ('Urziceni', 98)]),
-    'Craiova': Node('Craiova', [('Drobeta', 120), ('Rimnicu Vilcea', 146), ('Pitesti', 138)]),
-    'Drobeta': Node('Drobeta', [('Mehadia', 80)]),
-    'Eforie': Node('Eforie'),
-    'Fagaras': Node('Fagaras', [('Sibiu', 99), ('Bucharest', 211)]),
-    'Giurgiu': Node('Giurgiu', [('Bucharest', 90)]),
-    'Hirsova': Node('Hirsova', [('Urziceni', 98)]),
-    'Iasi': Node('Iasi', [('Neamt', 87)]),
-    'Lugoj': Node('Lugoj', [('Mehadia', 70)]),
-    'Mehadia': Node('Mehadia', [('Lugoj', 75), ('Drobeta', 151)]),
-    'Neamt': Node('Neamt', [('Iasi', 92)]),
-    'Oradea': Node('Oradea', [('Zerind', 140)]),
-    'Pitesti': Node('Pitesti', [('Rimnicu Vilcea', 97), ('Craiova', 138), ('Bucharest', 101)]),
-    'Rimnicu Vilcea': Node('Rimnicu Vilcea', [('Sibiu', 80), ('Pitesti', 97), ('Craiova', 146)]),
-    'Sibiu': Node('Sibiu', [('Fagaras', 99), ('Rimnicu Vilcea', 80), ('Arad', 140), ('Oradea', 151)]),
-    'Timisoara': Node('Timisoara', [('Arad', 118)]),
-    'Urziceni': Node('Urziceni', [('Hirsova', 86), ('Bucharest', 98), ('Vaslui', 142)]),
-    'Vaslui': Node('Vaslui', [('Urziceni', 98), ('Iasi', 92)]),
-    'Zerind': Node('Zerind', [('Oradea', 71), ('Arad', 75)])
-    }
-
-def DLS(graph, initialstate, goalstate, limit):
-    frontier = [(initialstate, 0)]
+def dfs(graph, initial_state, goal_state):
+    frontier = [initial_state]
     explored = []
 
-    while frontier:
-        currentNode, depth = frontier.pop()
-        explored.append(currentNode)
-            
-        if currentNode == goalstate:
-            return path(graph, initialstate, goalstate)
+    while len(frontier) != 0:
+        frontier.sort(key=lambda x: x.cost, reverse=True)
+        current_node = frontier.pop()
+        explored.append(current_node.state)
+        if current_node.state == goal_state:
+            return get_solution_path(current_node), current_node.cost
 
-        if depth < limit:
-            for child in graph[currentNode].neighbors:
-                if child[0] not in frontier and child[0] not in explored:
-                    graph[child[0]].parent = currentNode
-                    frontier.append((child[0], depth + 1))
+        for neighbor, edge_cost in graph.get(current_node.state, []):
+            if neighbor not in explored and not any(node.state == neighbor for node in frontier):
+                neighbor_node = Node(neighbor, current_node.cost + edge_cost)
+                neighbor_node.parent = current_node
+                frontier.append(neighbor_node)
 
-def path(graph, initialstate, goalstate):
-    solution = [goalstate]
-    currentParent = graph[goalstate].parent
+    return None, None
 
-    while currentParent != initialstate:
-        solution.append(currentParent)
-        currentParent = graph[currentParent].parent
+def get_solution_path(goal_node):
+    path = []
+    current_node = goal_node
+    while current_node:
+        path.append(current_node.state)
+        current_node = current_node.parent
+    return path
 
-    solution.append(initialstate)
-    solution.reverse()
-    return solution
+def main():
+    graph = {
+        'Arad': [('Sibiu', 140), ('Zerind', 75), ('Timisoara', 118)],
+        'Zerind': [('Arad', 75), ('Oradea', 71)],
+        'Oradea': [('Zerind', 71), ('Sibiu', 151)],
+        'Timisoara': [('Arad', 118), ('Lugoj', 111)],
+        'Sibiu': [('Arad', 140), ('Oradea', 151), ('Fagaras', 99), ('Rimnicu', 80)],
+        'Drobeta': [('Mehadia', 75), ('Craiova', 120)],
+        'Lugoj': [('Timisoara', 111), ('Mehadia', 70)],
+        'Mehadia': [('Lugoj', 70), ('Drobeta', 75)],
+        'Rimnicu': [('Pitesti', 97), ('Craiova', 146), ('Sibiu', 80)],
+        'Fagaras': [('Sibiu', 99), ('Bucharest', 211)],
+        'Craiova': [('Drobeta', 120), ('Rimnicu', 146), ('Pitesti', 138)],
+        'Pitesti': [('Rimnicu', 97), ('Craiova', 138), ('Bucharest', 101)],
+        'Bucharest': [('Fagaras', 211), ('Pitesti', 101), ('Giurgiu', 90), ('Urziceni', 85)],
+        'Urziceni': [('Bucharest', 85), ('Hirsova', 98), ('Vaslui', 142)],
+        'Hirsova': [('Urziceni', 98), ('Eforie', 86)],
+        'Eforie': [('Hirsova', 86)],
+        'Iasi': [('Neamt', 87), ('Vaslui', 92)],
+        'Neamt': [('Iasi', 87)],
+        'Vaslui': [('Urziceni', 142), ('Iasi', 92)],
+        'Giurgiu': [('Bucharest', 90)]
+    }
 
-initialstate = 'Arad'
-goalstate = 'Bucharest'
-limit = 0
-solution = None
+    initial_state = Node('Arad')
+    goal_state = 'Bucharest'
 
-while not solution:
-    solution = DLS(graph, initialstate, goalstate, limit)
-    limit += 1
+    solution, cost = dfs(graph, initial_state, goal_state)
+    if solution:
+        print("Path found:", solution)
+        print("Total cost:", cost)
+    else:
+        print("No path found.")
 
-print(solution)
+
+main()
