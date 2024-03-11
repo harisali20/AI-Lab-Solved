@@ -87,4 +87,8 @@ dictionary = {
         {"value": "Giurgiu", "children": []}
     ]
 }
-print(iterative_deepening_dfs(dictionary, "Bucharest")["value"])
+
+try:
+    print(iterative_deepening_dfs(dictionary, "Bucharest")["value"])
+except:
+    print("Node not found in the graph.")
